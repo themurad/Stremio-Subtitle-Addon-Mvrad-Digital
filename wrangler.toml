@@ -1,0 +1,28 @@
+# Cloudflare Workers configuration.
+#
+# The Worker serves the built subtitle files AND answers Stremio's subtitle
+# requests, so this one deployment is the whole addon — no GitHub Pages, no
+# second host, no URL to keep in sync.
+#
+# Cloudflare build settings that go with this file:
+#   Build command:   npm run build
+#   Deploy command:  npx wrangler deploy
+
+name = "stremio-subtitle-addon-mvrad-digital"
+main = "worker/index.js"
+compatibility_date = "2025-06-01"
+workers_dev = true
+
+# dist/ is produced by `npm run build` from whatever is in subtitles/.
+#
+# run_worker_first is deliberate: the Worker sees every request so it can add
+# the CORS headers Stremio needs on the manifest and on the .vtt files. It then
+# hands ordinary file requests to ASSETS. Without this, files would be served
+# straight from the edge with no CORS and Stremio Web would refuse them.
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+run_worker_first = true
+
+[observability]
+enabled = true
