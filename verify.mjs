@@ -101,8 +101,14 @@ for (const videoId of videoIds) {
     const directOnes = (body.subtitles || []).filter((s) => !s.url.includes('127.0.0.1:11470'));
     ok(`${videoId} offers a server-routed entry`, viaServer.length > 0);
     ok(`${videoId} offers a direct fallback`, directOnes.length > 0);
-    ok(`${videoId} server-routed entry is announced as Azerbaijani`,
-      viaServer.every((s) => s.lang === 'aze'), JSON.stringify(viaServer.map((s) => s.lang)));
+    ok(`${videoId} has exactly one direct browser fallback`,
+      directOnes.length === 1, JSON.stringify(directOnes.map((s) => s.lang)));
+    ok(`${videoId} routed entries carry a usable language name`,
+      viaServer.every((s) => typeof s.lang === 'string' && s.lang.length > 0),
+      JSON.stringify(viaServer.map((s) => s.lang)));
+    ok(`${videoId} routed entries are distinguishable from each other`,
+      new Set(viaServer.map((s) => s.lang)).size === viaServer.length,
+      JSON.stringify(viaServer.map((s) => s.lang)));
     ok(`${videoId} every entry has a unique id`,
       new Set(body.subtitles.map((s) => s.id)).size === body.subtitles.length,
       JSON.stringify(body.subtitles.map((s) => s.id)));

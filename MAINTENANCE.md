@@ -67,6 +67,26 @@ Positive means the subtitle was appearing too early. Negative means too late.
 Lines pushed before zero are pinned to the start rather than dropped, and
 `/panel.html` reports the shift that was applied.
 
+### When PC and phone need different numbers
+
+That means the two devices are streaming different rips of the same film, and
+one number cannot satisfy both. Upload the **same subtitle file twice** under
+different names:
+
+```
+tt37287335 Obsession-Aze.srt
+tt37287335 Obsession-Aze [-14s].srt
+```
+
+Both then appear in Stremio's subtitle menu as separate, named entries, and the
+viewer picks whichever lines up. No slider, no measuring.
+
+For a tidier menu, leave the descriptive words off the variant — a file named
+`tt37287335 [-14s].srt` shows up simply as **Azərbaycan · -14s**.
+
+Choosing whichever source appears first in Stremio's stream list is what causes
+this in the first place. Picking the same release on both devices avoids it.
+
 If a film drifts further out as it plays rather than staying a fixed distance
 off, that is a frame-rate mismatch and a single offset will not fix it — the
 subtitle needs to be re-timed for that release.

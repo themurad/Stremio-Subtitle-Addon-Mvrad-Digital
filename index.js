@@ -129,24 +129,41 @@ export default {
     if (subtitleRequest) {
       const index = await loadIndex(env, base);
       const video = index.videos && index.videos[subtitleRequest.id];
-      const subtitles = [];
-      for (const sub of (video ? video.subtitles : [])) {
-        // Paths are stored relative so the addon works on any hostname.
-        const direct = sub.path ? `${base}/${sub.path}` : sub.url;
+      const available = video ? video.subtitles : [];
+      // Paths are stored relative so the addon works on any hostname.
+      const absolute = (sub) => (sub.path ? `${base}/${sub.path}` : sub.url);
 
-        if (ANDROID_COMPAT_ENTRY) {
-          subtitles.push({
-            id: `${sub.id}-srv`,
-            url: `${STREMIO_SERVER}${encodeURIComponent(direct)}`,
-            lang: sub.lang,
-          });
-          // Shown under its own name so a customer whose player cannot reach
-          // the local server has something obvious to switch to.
-          subtitles.push({ id: sub.id, url: direct, lang: FALLBACK_LABEL });
-        } else {
-          subtitles.push({ id: sub.id, url: direct, lang: sub.lang });
-        }
+      const subtitles = [];
+      for (const sub of available) {
+        // With one subtitle, use the plain language code so Stremio renders it
+        // as "Azərbaycan dili". With several — a film that needed a timing
+        // correction for a second release, say — each needs its own name or
+        // the menu shows identical entries and nobody can choose.
+        const named = available.length > 1 && sub.label
+          ? `Azərbaycan · ${sub.label}`
+          : sub.lang;
+
+        subtitles.push(
+          ANDROID_COMPAT_ENTRY
+            ? {
+                id: `${sub.id}-srv`,
+                url: `${STREMIO_SERVER}${encodeURIComponent(absolute(sub))}`,
+                lang: named,
+              }
+            : { id: sub.id, url: absolute(sub), lang: named },
+        );
       }
+
+      // One direct entry for players with no local streaming server, i.e. a
+      // browser. Only one, so the menu does not double in length.
+      if (ANDROID_COMPAT_ENTRY && available.length) {
+        subtitles.push({
+          id: available[0].id,
+          url: absolute(available[0]),
+          lang: FALLBACK_LABEL,
+        });
+      }
+
       return json({ subtitles, cacheMaxAge: 300 });
     }
 

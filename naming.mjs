@@ -131,8 +131,14 @@ export function parseSubtitleName(relativePath) {
 
   // Text in [brackets] is treated as the release label ("BluRay", "WEB-DL");
   // otherwise the leftover words act as the label so two files for the same
-  // film can still be told apart in Stremio's subtitle menu.
-  const label = bracketLabel || tidy(words.join(' '));
+  // film can still be told apart in Stremio's subtitle menu. A timing
+  // correction joins the label too, so the menu shows which is which.
+  const offsetLabel = offsetSeconds
+    ? `${offsetSeconds > 0 ? '+' : ''}${offsetSeconds}s`
+    : '';
+  const label = [bracketLabel || tidy(words.join(' ')), offsetLabel]
+    .filter(Boolean)
+    .join(' ');
 
   return {
     imdbId,

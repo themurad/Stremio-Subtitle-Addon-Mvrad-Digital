@@ -231,9 +231,13 @@ for (const [file, expectedType, expectedId] of nameCases) {
   check('comma decimal', parseSubtitleName('tt1375666 [-3,5s].srt').offsetSeconds, -3.5);
   check('spelled out', parseSubtitleName('tt1375666 [+8 sec].srt').offsetSeconds, 8);
 
+  // The offset joins the label so Stremio's menu can tell two timings of the
+  // same film apart, instead of showing two identical entries.
   const both = parseSubtitleName('tt1375666 [BluRay] [+12s].srt');
-  check('offset does not eat the label', both.label, 'BluRay');
+  check('label keeps its own text and gains the offset', both.label, 'BluRay +12s');
   check('offset still read alongside a label', both.offsetSeconds, 12);
+  check('offset alone becomes the label', parseSubtitleName('tt1375666 [-14s].srt').label, '-14s');
+  check('no offset leaves the label alone', parseSubtitleName('tt1375666 [BluRay].srt').label, 'BluRay');
 
   // An offset must never be mistaken for an episode number or a title.
   const episode = parseSubtitleName('tt0903747 S01E02 [+4s].srt');
