@@ -1,0 +1,24 @@
+{
+  "id": "community.azsubtitles",
+  "version": "1.0.0",
+  "name": "AZ Subtitles",
+  "description": "Curated Azerbaijani subtitles for Stremio.",
+  "resources": [
+    {
+      "name": "subtitles",
+      "types": [
+        "movie"
+      ],
+      "idPrefixes": [
+        "tt"
+      ]
+    }
+  ],
+  "types": [
+    "movie"
+  ],
+  "catalogs": [],
+  "idPrefixes": [
+    "tt"
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "tt37287335": {
+    "title": "Obsession (2025)",
+    "type": "movie",
+    "subtitles": [
+      {
+        "id": "aze-yts-stremio",
+        "lang": "aze",
+        "source": "source_srt/Obsession.2025.Azerbaijani.YTS.srt",
+        "output_name": "Obsession.2025.Azerbaijani.YTS.Stremio.srt",
+        "offset_ms": 750
+      }
+    ]
+  }
+}
