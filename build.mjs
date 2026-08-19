@@ -119,6 +119,7 @@ async function main() {
     const converted = toWebVtt(decoded.text, {
       ...(config.cleanup || {}),
       microDvdFps: config.microDvdFps,
+      offsetSeconds: info.offsetSeconds,
     });
 
     if (converted.cueCount === 0) {

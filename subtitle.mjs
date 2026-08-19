@@ -146,6 +146,7 @@ export function toWebVtt(text, options = {}) {
     stripAssTags: true,
     removePromoCues: false,
     microDvdFps: 23.976,
+    offsetSeconds: 0,
     ...options,
   };
   const warnings = [];
@@ -161,6 +162,26 @@ export function toWebVtt(text, options = {}) {
     .map((cue) => ({ ...cue, text: cleanText(cue.text, settings) }))
     .filter((cue) => cue.text.length > 0)
     .filter((cue) => !(settings.removePromoCues && isPromoCue(cue.text)));
+
+  // Shift every cue when the file name asked for a timing correction. Cues
+  // pushed before zero are clamped rather than dropped, so nothing is lost.
+  const offset = Number(settings.offsetSeconds) || 0;
+  if (offset !== 0) {
+    let clamped = 0;
+    for (const cue of cues) {
+      cue.start += offset;
+      cue.end += offset;
+      if (cue.start < 0) {
+        cue.end = Math.max(cue.end - cue.start, 0.5);
+        cue.start = 0;
+        clamped += 1;
+      }
+    }
+    warnings.push(`shifted by ${offset > 0 ? '+' : ''}${offset}s`);
+    if (clamped > 0) {
+      warnings.push(`${clamped} cue(s) would have started before zero and were pinned to the start`);
+    }
+  }
 
   // Guard against files whose cues are out of order or have zero length.
   cues.sort((a, b) => a.start - b.start);

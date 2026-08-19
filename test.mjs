@@ -222,6 +222,53 @@ for (const [file, expectedType, expectedId] of nameCases) {
 }
 
 // ---------------------------------------------------------------------------
+// Timing correction written into the file name
+// ---------------------------------------------------------------------------
+{
+  check('no offset by default', parseSubtitleName('tt1375666.srt').offsetSeconds, 0);
+  check('positive offset', parseSubtitleName('tt1375666 [+12s].srt').offsetSeconds, 12);
+  check('negative offset', parseSubtitleName('tt1375666 [-3.5s].srt').offsetSeconds, -3.5);
+  check('comma decimal', parseSubtitleName('tt1375666 [-3,5s].srt').offsetSeconds, -3.5);
+  check('spelled out', parseSubtitleName('tt1375666 [+8 sec].srt').offsetSeconds, 8);
+
+  const both = parseSubtitleName('tt1375666 [BluRay] [+12s].srt');
+  check('offset does not eat the label', both.label, 'BluRay');
+  check('offset still read alongside a label', both.offsetSeconds, 12);
+
+  // An offset must never be mistaken for an episode number or a title.
+  const episode = parseSubtitleName('tt0903747 S01E02 [+4s].srt');
+  check('offset does not disturb the episode id', toVideoId(episode), 'tt0903747:1:2');
+  check('episode offset is read', episode.offsetSeconds, 4);
+}
+
+{
+  const srt = `1
+00:00:10,000 --> 00:00:12,000
+Birinci
+
+2
+01:20:00,000 --> 01:20:02,000
+İkinci
+`;
+  const shifted = toWebVtt(srt, { offsetSeconds: 12 });
+  ok('a positive shift moves the first cue',
+    shifted.vtt.includes('00:00:22.000 --> 00:00:24.000'), shifted.vtt);
+  ok('a positive shift moves a cue past the hour mark',
+    shifted.vtt.includes('01:20:12.000 --> 01:20:14.000'), shifted.vtt);
+  ok('the shift is reported', shifted.warnings.some((w) => w.includes('+12s')));
+
+  const back = toWebVtt(srt, { offsetSeconds: -3.5 });
+  ok('a negative shift moves cues earlier',
+    back.vtt.includes('00:00:06.500 --> 00:00:08.500'), back.vtt);
+
+  // -30s would push the first cue to -20s, which is not a valid timestamp.
+  const clamped = toWebVtt(srt, { offsetSeconds: -30 });
+  ok('cues before zero are pinned to the start rather than lost',
+    clamped.cueCount === 2 && clamped.vtt.includes('00:00:00.000'), clamped.vtt);
+  ok('clamping is reported', clamped.warnings.some((w) => w.includes('pinned')));
+}
+
+// ---------------------------------------------------------------------------
 // Request routing - the shapes Stremio actually sends
 // ---------------------------------------------------------------------------
 const routeCases = [

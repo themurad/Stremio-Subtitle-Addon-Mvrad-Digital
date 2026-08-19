@@ -13,6 +13,12 @@
 //   Breaking Bad/tt0903747/S01E02.srt
 //   Inception 2010.srt                  <- resolved online by title
 
+// A timing correction written straight into the file name: [+12s], [-3.5s].
+// Subtitles are timed against one particular release of a film; when the
+// release people actually stream is a few seconds out, renaming the file fixes
+// it for everyone at once instead of every viewer nudging a delay slider.
+const OFFSET = /\[\s*([+-]?\d+(?:[.,]\d+)?)\s*s(?:ec|econds?)?\s*\]/i;
+
 const IMDB_ID = /tt(\d{7,10})/i;
 const SEASON_EPISODE = /\bs(\d{1,3})[\s._-]*e(\d{1,4})\b/i;
 const CROSS_FORM = /\b(\d{1,3})x(\d{1,4})\b/i;
@@ -45,7 +51,17 @@ function tidy(value) {
  */
 export function parseSubtitleName(relativePath) {
   const withoutExtension = relativePath.replace(/\.[a-z0-9]{2,4}$/i, '');
-  const segments = withoutExtension.split('/').filter(Boolean);
+
+  // Pull the timing correction out first so it never leaks into the label.
+  const offsetMatch = OFFSET.exec(withoutExtension);
+  const offsetSeconds = offsetMatch
+    ? Number(String(offsetMatch[1]).replace(',', '.'))
+    : 0;
+  const cleaned = offsetMatch
+    ? withoutExtension.replace(offsetMatch[0], ' ')
+    : withoutExtension;
+
+  const segments = cleaned.split('/').filter(Boolean);
 
   let typeHint = null;
   if (/^movies?$/i.test(segments[0] || '')) typeHint = 'movie';
@@ -127,6 +143,7 @@ export function parseSubtitleName(relativePath) {
     label,
     title,
     year,
+    offsetSeconds,
   };
 }
 

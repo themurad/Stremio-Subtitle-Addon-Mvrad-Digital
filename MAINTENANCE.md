@@ -36,6 +36,43 @@ The IMDb id is in the IMDb address: `imdb.com/title/`**`tt1375666`**`/`.
 
 ---
 
+## When a subtitle is out of sync
+
+Subtitles are timed against one particular release of a film. If the release
+most people stream is a few seconds out, fix it once for everyone by putting
+the correction in the file name — no editing tools, no re-uploading a new file.
+
+**Rename the file** on GitHub (open it → pencil icon → change the name):
+
+```
+tt37287335 Obsession-Aze.srt          ->   tt37287335 Obsession-Aze [+12s].srt
+```
+
+| In the name | Effect |
+| --- | --- |
+| `[+12s]` | every line appears 12 seconds later |
+| `[-3.5s]` | every line appears 3.5 seconds earlier |
+| `[-3,5s]` | comma decimals work too |
+| `[+8 sec]` | so does the spelled-out form |
+
+It combines with a label: `tt1375666 [BluRay] [+12s].srt`.
+
+**Finding the number:** play the film, open Stremio's subtitle delay control,
+and nudge it until the words land with the speech. Whatever number it settles
+on is what goes in the file name. Then reset the delay back to zero — the
+correction now lives in the file, so every viewer gets it without touching
+anything.
+
+Positive means the subtitle was appearing too early. Negative means too late.
+Lines pushed before zero are pinned to the start rather than dropped, and
+`/panel.html` reports the shift that was applied.
+
+If a film drifts further out as it plays rather than staying a fixed distance
+off, that is a frame-rate mismatch and a single offset will not fix it — the
+subtitle needs to be re-timed for that release.
+
+---
+
 ## What happens to each file
 
 - **Encoding detection** — UTF-8, UTF-16, windows-1254, ISO-8859-9,
