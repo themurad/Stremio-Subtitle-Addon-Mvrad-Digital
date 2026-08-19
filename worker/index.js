@@ -6,8 +6,7 @@ const SITE = 'https://USERNAME.github.io/REPOSITORY';
 
 // Stremio's Android app decodes subtitle files as ISO-8859-1, so UTF-8
 // Azerbaijani letters arrive as "hÉ™lÉ™" instead of "hələ". Routing through
-// Stremio's own streaming server bypasses that decoder. Set to false to go
-// back to a single direct entry.
+// Stremio's own streaming server bypasses that decoder.
 const ANDROID_COMPAT_ENTRY = true;
 const STREMIO_SERVER = 'http://127.0.0.1:11470/subtitles.vtt?from=';
 const FALLBACK_LABEL = 'Azərbaycan (ehtiyat)';
@@ -93,21 +92,34 @@ export default {
     if (subtitleRequest) {
       const index = await loadIndex(env, base);
       const video = index.videos && index.videos[subtitleRequest.id];
-      const subtitles = [];
-      for (const sub of (video ? video.subtitles : [])) {
-        const direct = sub.path ? `${base}/${sub.path}` : sub.url;
+      const available = video ? video.subtitles : [];
+      const absolute = (sub) => (sub.path ? `${base}/${sub.path}` : sub.url);
 
-        if (ANDROID_COMPAT_ENTRY) {
-          subtitles.push({
-            id: `${sub.id}-srv`,
-            url: `${STREMIO_SERVER}${encodeURIComponent(direct)}`,
-            lang: sub.lang,
-          });
-          subtitles.push({ id: sub.id, url: direct, lang: FALLBACK_LABEL });
-        } else {
-          subtitles.push({ id: sub.id, url: direct, lang: sub.lang });
-        }
+      const subtitles = [];
+      for (const sub of available) {
+        const named = available.length > 1 && sub.label
+          ? `Azərbaycan · ${sub.label}`
+          : sub.lang;
+
+        subtitles.push(
+          ANDROID_COMPAT_ENTRY
+            ? {
+                id: `${sub.id}-srv`,
+                url: `${STREMIO_SERVER}${encodeURIComponent(absolute(sub))}`,
+                lang: named,
+              }
+            : { id: sub.id, url: absolute(sub), lang: named },
+        );
       }
+
+      if (ANDROID_COMPAT_ENTRY && available.length) {
+        subtitles.push({
+          id: available[0].id,
+          url: absolute(available[0]),
+          lang: FALLBACK_LABEL,
+        });
+      }
+
       return json({ subtitles, cacheMaxAge: 300 });
     }
 
@@ -130,9 +142,18 @@ export default {
     }
 
     if (env.ASSETS) {
-      const overrides = /\.vtt$/i.test(pathname)
-        ? { 'content-type': 'text/vtt; charset=utf-8' }
-        : {};
+      const overrides = {};
+
+      if (/\.vtt$/i.test(pathname)) {
+        overrides['content-type'] = 'text/vtt; charset=utf-8';
+      }
+
+      // Keep pages fresh so a newly added film shows up immediately instead of
+      // sitting behind a cache and looking like the upload failed.
+      if (/\.(html|json)$/i.test(pathname) || pathname === '/' || pathname === '') {
+        overrides['cache-control'] = 'public, max-age=0, must-revalidate';
+      }
+
       return withCors(await env.ASSETS.fetch(request), overrides);
     }
 
