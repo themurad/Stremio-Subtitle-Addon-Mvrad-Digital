@@ -68,6 +68,29 @@ Stremio is told the language is `aze`, which it displays as
 
 ---
 
+## The two web pages
+
+| Page | Who it is for |
+| --- | --- |
+| `/` (`index.html`) | **Customers.** Install steps for each device, how to switch subtitles on during playback, the catalogue, FAQ. Nothing about how the addon is maintained. |
+| `/panel.html` | **You.** Which files were skipped and why, the encoding each file was found in, what got repaired. Not linked from anywhere public. |
+
+Everything customers read comes from `addon.config.json`:
+
+| Field | Where it shows |
+| --- | --- |
+| `name` | Page title and the addon's name inside Stremio |
+| `description` | **The text Stremio shows in its addon list** — the closest thing to a sales pitch |
+| `tagline` | Under the title on the page |
+| `brand` | Page footer |
+| `contact` | Adds a support button. `{"type": "telegram", "value": "@yourname"}` — also `whatsapp` (phone number), `instagram`, `email`, or `none` |
+| `showCatalog` | `false` hides the film list and shows only the count |
+
+The logo and background live in `assets/`. Replace those two PNGs to rebrand —
+`logo.png` is what Stremio shows next to the addon name, so keep it square.
+
+---
+
 ## How it is deployed
 
 Cloudflare is connected to this repository (Workers & Pages → your project →
@@ -125,9 +148,9 @@ named or unreadable file shows up as a red cross on the commit.
 
 ## Troubleshooting
 
-**A film shows no subtitles at all.** Open the addon's web page (the Worker's
-root URL). If the film is not listed, the file name had no IMDb id — the page
-names every skipped file and why.
+**A film shows no subtitles at all.** Open `/panel.html` on the Worker. It
+lists every file that was skipped and why — usually an IMDb id missing from
+the file name.
 
 **Subtitles appear in the menu but never load.** The subtitle URLs are pointing
 somewhere unreachable. Open `/subs.json` on the Worker: every entry should have
@@ -146,8 +169,11 @@ briefly. Stop playback and start it again.
 
 ```
 subtitles/                 <- you only ever touch this folder
+addon.config.json          <- name, description, contact, catalogue on/off
+assets/                    <- logo.png and background.png
 wrangler.toml              <- Cloudflare deployment config
 worker/index.js            <- the addon endpoint
+scripts/lib/page.mjs       <- the customer page and your panel page
 scripts/build.mjs          <- converts subtitles/ into dist/
 scripts/lib/decode.mjs     <- encoding detection and repair
 scripts/lib/subtitle.mjs   <- SRT / MicroDVD -> WebVTT
@@ -155,7 +181,6 @@ scripts/lib/naming.mjs     <- reads IMDb id and episode from file names
 scripts/verify.mjs         <- replays Stremio's real requests against dist/
 api/subtitles.js           <- only needed if you host on Vercel instead
 .github/workflows/         <- runs the checks on every push
-addon.config.json          <- addon name, description, options
 ```
 
 No `npm install` needed — plain Node, zero dependencies.

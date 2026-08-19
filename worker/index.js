@@ -121,7 +121,27 @@ export default {
       return json({ subtitles, cacheMaxAge: 300 });
     }
 
-    // Everything else is a file: manifest.json, the .vtt files, the web page.
+    // The manifest ships with relative artwork paths so one build works on any
+    // hostname. Stremio needs absolute URLs, so fill them in per request.
+    if (pathname === '/manifest.json' && env.ASSETS) {
+      const upstream = await env.ASSETS.fetch(request);
+      if (upstream.ok) {
+        try {
+          const manifest = await upstream.json();
+          for (const key of ['logo', 'background']) {
+            if (manifest[key] && !/^https?:\/\//i.test(manifest[key])) {
+              manifest[key] = `${base}/${String(manifest[key]).replace(/^\/+/, '')}`;
+            }
+          }
+          return json(manifest);
+        } catch (error) {
+          // Malformed manifest: hand back whatever the file actually says.
+        }
+      }
+      return withCors(upstream);
+    }
+
+    // Everything else is a file: the .vtt files, artwork, the web page.
     if (env.ASSETS) {
       return withCors(await env.ASSETS.fetch(request));
     }

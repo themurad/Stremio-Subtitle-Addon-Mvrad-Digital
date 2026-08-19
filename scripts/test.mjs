@@ -149,6 +149,44 @@ ${line}
   ok('zero-length cues get a duration', vtt.includes('00:00:05.000 --> 00:00:06.500'), vtt);
 }
 
+{
+  // Regression: the end timestamp used to be read from the wrong capture group,
+  // which silently dropped its hours. Everything before 01:00:00 looked fine,
+  // so a whole feature film would play correctly for an hour and then every
+  // remaining cue would flash by in 1.5s. Any test whose timings stay under an
+  // hour cannot see this — hence the deliberately long running times here.
+  const late = `1
+00:45:10,000 --> 00:45:13,500
+Bir saatdan əvvəl
+
+2
+01:23:45,678 --> 01:23:49,123
+Bir saatdan sonra
+
+3
+02:07:31,200 --> 02:07:34,000
+İki saatdan sonra
+`;
+  const { vtt, cueCount, warnings } = toWebVtt(late);
+  check('all three late cues are kept', cueCount, 3);
+  ok('a cue before the first hour is exact',
+    vtt.includes('00:45:10.000 --> 00:45:13.500'), vtt);
+  ok('a cue past one hour keeps its hours',
+    vtt.includes('01:23:45.678 --> 01:23:49.123'), vtt);
+  ok('a cue past two hours keeps its hours',
+    vtt.includes('02:07:31.200 --> 02:07:34.000'), vtt);
+  check('no timings needed repairing', warnings, []);
+}
+
+{
+  // The mm:ss.mmm form, with and without hours on the other side.
+  const shortForm = '1\n01:30,000 --> 01:32,500\nQısa format\n';
+  const { vtt, warnings } = toWebVtt(shortForm);
+  ok('short-form timestamps are read',
+    vtt.includes('00:01:30.000 --> 00:01:32.500'), vtt);
+  check('short form needs no repair', warnings, []);
+}
+
 // ---------------------------------------------------------------------------
 // File naming
 // ---------------------------------------------------------------------------

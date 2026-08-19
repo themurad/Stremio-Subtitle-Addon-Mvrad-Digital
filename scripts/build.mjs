@@ -12,7 +12,7 @@ import { decodeSubtitle } from './lib/decode.mjs';
 import { toWebVtt } from './lib/subtitle.mjs';
 import { parseSubtitleName, toVideoId } from './lib/naming.mjs';
 import { MetadataCache } from './lib/cinemeta.mjs';
-import { renderIndexPage } from './lib/page.mjs';
+import { renderIndexPage, renderPanelPage } from './lib/page.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SOURCE_DIR = join(ROOT, 'subtitles');
@@ -234,8 +234,10 @@ async function main() {
     version: config.version,
     name: config.name,
     description: config.description,
-    logo: config.logo || undefined,
-    background: config.background || undefined,
+    // Relative on purpose: the Worker turns these into absolute URLs per
+    // request, so the same build works on any hostname.
+    logo: 'logo.png',
+    background: 'background.png',
     types: ['movie', 'series'],
     resources: [
       { name: 'subtitles', types: ['movie', 'series'], idPrefixes: ['tt'] },
@@ -278,9 +280,24 @@ async function main() {
   };
   await writeFileEnsured(join(OUT_DIR, 'report.json'), `${JSON.stringify(report, null, 2)}\n`);
 
+  // Logo and background shown by Stremio in its addon list.
+  for (const image of ['logo.png', 'background.png']) {
+    try {
+      await writeFileEnsured(join(OUT_DIR, image), await readFile(join(ROOT, 'assets', image)));
+    } catch {
+      // Missing artwork is not fatal; the addon still works without it.
+    }
+  }
+
   await writeFileEnsured(
     join(OUT_DIR, 'index.html'),
-    renderIndexPage({ config, manifest, siteUrl, entries: sorted, skipped, notes }),
+    renderIndexPage({ config, manifest, siteUrl, entries: sorted }),
+  );
+
+  // Your own diagnostics, deliberately not linked from the public page.
+  await writeFileEnsured(
+    join(OUT_DIR, 'panel.html'),
+    renderPanelPage({ config, siteUrl, entries: sorted, skipped, notes }),
   );
 
   await cache.save();

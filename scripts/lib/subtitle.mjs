@@ -18,13 +18,19 @@ function toSeconds(h, m, s, ms) {
   return Number(h) * 3600 + Number(m) * 60 + Number(s) + millis / 1000;
 }
 
-// The cue regex has two alternatives per timestamp (h:m:s.ms and m:s.ms), so a
-// match yields 4 groups for the long form or 3 for the short form.
-function readTimestampGroups(groups) {
-  if (groups[0] !== undefined) {
-    return { seconds: toSeconds(groups[0], groups[1], groups[2], groups[3]), used: 4 };
+// Each timestamp in the cue regex is an alternation of two forms, so it always
+// occupies seven capture groups whichever one matched:
+//   offset+0..3  h:mm:ss.mmm
+//   offset+4..6  mm:ss.mmm
+// The unmatched alternative stays present as undefined, so the second timestamp
+// always begins at offset 7 — not at "however many groups the first one used".
+const TIMESTAMP_GROUP_SPAN = 7;
+
+function readTimestamp(groups, offset) {
+  if (groups[offset] !== undefined) {
+    return toSeconds(groups[offset], groups[offset + 1], groups[offset + 2], groups[offset + 3]);
   }
-  return { seconds: toSeconds(0, groups[4], groups[5], groups[6]), used: 7 };
+  return toSeconds(0, groups[offset + 4], groups[offset + 5], groups[offset + 6]);
 }
 
 function formatTimestamp(totalSeconds) {
@@ -110,8 +116,8 @@ function parseTimed(text) {
     }
 
     const groups = match.slice(1);
-    const start = readTimestampGroups(groups);
-    const end = readTimestampGroups(groups.slice(start.used));
+    const start = readTimestamp(groups, 0);
+    const end = readTimestamp(groups, TIMESTAMP_GROUP_SPAN);
 
     const body = [];
     index += 1;
@@ -123,7 +129,7 @@ function parseTimed(text) {
       index += 1;
     }
 
-    cues.push({ start: start.seconds, end: end.seconds, text: body.join('\n') });
+    cues.push({ start, end, text: body.join('\n') });
   }
 
   return cues;
