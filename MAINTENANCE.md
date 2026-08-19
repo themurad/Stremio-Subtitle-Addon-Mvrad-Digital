@@ -141,6 +141,13 @@ should have a relative `"path"`, not an absolute `"url"` with a hostname in it.
 `/panel.html`. If detection guessed wrong, open the file in a text editor, save
 it as UTF-8, and re-upload.
 
+**Letters look wrong on Android but fine on the computer.** That is not the
+file — it is the player deciding the encoding for itself. Two things prevent
+it, and both are already in place: every `.vtt` is written with a leading UTF-8
+BOM, and the Worker forces `Content-Type: text/vtt; charset=utf-8` on subtitle
+responses (Cloudflare's asset server sends a bare `text/vtt` without it). If
+this ever regresses, `npm run verify` fails on both counts.
+
 **Stremio still shows the old list.** Stremio caches subtitle responses
 briefly. Stop playback and start it again.
 

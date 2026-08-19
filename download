@@ -1,0 +1,7 @@
+# Subtitle files must reach the build byte-for-byte. Git's automatic line
+# ending conversion would corrupt files that are not UTF-8, and the encoding
+# detector needs the original bytes to work out what they are.
+*.srt -text
+*.sub -text
+*.vtt -text
+*.txt -text

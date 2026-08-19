@@ -1,0 +1,29 @@
+name: Check subtitles
+
+# Cloudflare deploys the addon on every push. This job runs at the same time
+# and puts a green tick (or a red cross) on the commit, so if a subtitle file
+# is unreadable or badly named you find out from GitHub instead of from
+# Stremio showing nothing.
+
+on:
+  push:
+    paths-ignore:
+      - '**/*.md'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Subtitle pipeline self-check
+        run: npm test
+
+      - name: Build and confirm every request shape resolves
+        run: npm run verify
