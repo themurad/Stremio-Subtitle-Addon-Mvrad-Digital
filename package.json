@@ -8,7 +8,8 @@
     "build": "node scripts/build.mjs",
     "start": "node scripts/build.mjs && node scripts/serve.mjs",
     "serve": "node scripts/serve.mjs",
-    "test": "node scripts/test.mjs"
+    "test": "node scripts/test.mjs",
+    "verify": "node scripts/build.mjs && node scripts/verify.mjs"
   },
   "engines": {
     "node": ">=18"

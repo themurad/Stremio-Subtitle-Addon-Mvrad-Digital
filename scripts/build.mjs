@@ -21,19 +21,23 @@ const CACHE_FILE = join(ROOT, '.cache', 'cinemeta.json');
 
 const SUBTITLE_EXTENSIONS = /\.(srt|vtt|sub|txt)$/i;
 
+// Returns null when the addon's public address is not known at build time —
+// which is the normal case on Cloudflare, where the Worker serves the files
+// itself and resolves paths against whatever hostname the request arrived on.
 function resolveSiteUrl(config) {
   if (process.env.SITE_URL) return process.env.SITE_URL.replace(/\/+$/, '');
   if (config.siteUrl) return config.siteUrl.replace(/\/+$/, '');
 
+  // GitHub Actions knows the Pages address.
   const repository = process.env.GITHUB_REPOSITORY;
-  if (repository) {
+  if (repository && !process.env.CF_PAGES && !process.env.WORKERS_CI) {
     const [owner, name] = repository.split('/');
     if (name.toLowerCase() === `${owner.toLowerCase()}.github.io`) {
       return `https://${owner.toLowerCase()}.github.io`;
     }
     return `https://${owner.toLowerCase()}.github.io/${name}`;
   }
-  return 'http://127.0.0.1:8080';
+  return null;
 }
 
 async function walk(dir, base = dir) {
@@ -190,7 +194,10 @@ async function main() {
           title: entry.title,
           subtitles: entry.subtitles.map((sub) => ({
             id: sub.id,
-            url: `${siteUrl}/${sub.file}`,
+            // Relative, so the same build works on any hostname. Whoever
+            // answers the request turns it into an absolute URL.
+            path: sub.file,
+            ...(siteUrl ? { url: `${siteUrl}/${sub.file}` } : {}),
             lang,
             label: sub.label,
           })),
@@ -200,20 +207,25 @@ async function main() {
   };
   await writeFileEnsured(join(OUT_DIR, 'subs.json'), `${JSON.stringify(index, null, 2)}\n`);
 
-  // ---- static per-video responses (used when Stremio sends no extra args) ---
-  for (const entry of sorted) {
-    const payload = {
-      subtitles: entry.subtitles.map((sub) => ({
-        id: sub.id,
-        url: `${siteUrl}/${sub.file}`,
-        lang,
-      })),
-      cacheMaxAge: 3600,
-    };
-    await writeFileEnsured(
-      join(OUT_DIR, 'subtitles', entry.type, `${entry.videoId}.json`),
-      `${JSON.stringify(payload)}\n`,
-    );
+  // ---- static per-video responses ------------------------------------------
+  // Only written when the public address is known (the GitHub Pages setup).
+  // Stremio needs absolute subtitle URLs, and a static file cannot work them
+  // out. On Cloudflare the Worker answers these paths instead.
+  if (siteUrl) {
+    for (const entry of sorted) {
+      const payload = {
+        subtitles: entry.subtitles.map((sub) => ({
+          id: sub.id,
+          url: `${siteUrl}/${sub.file}`,
+          lang,
+        })),
+        cacheMaxAge: 3600,
+      };
+      await writeFileEnsured(
+        join(OUT_DIR, 'subtitles', entry.type, `${entry.videoId}.json`),
+        `${JSON.stringify(payload)}\n`,
+      );
+    }
   }
 
   // ---- manifest ------------------------------------------------------------
@@ -275,7 +287,9 @@ async function main() {
 
   // ---- console + GitHub Actions summary ------------------------------------
   const lines = [];
-  lines.push(`Addon built for ${siteUrl}`);
+  lines.push(siteUrl
+    ? `Addon built for ${siteUrl}`
+    : 'Addon built with relative paths (served by the Cloudflare Worker)');
   lines.push(`${index.videoCount} video(s), ${index.subtitleCount} subtitle file(s)`);
   for (const entry of sorted) {
     for (const sub of entry.subtitles) {
@@ -286,7 +300,9 @@ async function main() {
   for (const note of notes) lines.push(`  note: ${note}`);
   for (const item of skipped) lines.push(`  SKIPPED ${item.file} — ${item.reason}`);
   lines.push('');
-  lines.push(`Install URL: ${siteUrl}/manifest.json`);
+  lines.push(siteUrl
+    ? `Install URL: ${siteUrl}/manifest.json`
+    : 'Install URL: https://<your-worker>.workers.dev/manifest.json');
   const output = lines.join('\n');
   console.log(output);
 

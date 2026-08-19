@@ -1,8 +1,10 @@
 # Azərbaycan Altyazılar — Stremio addon
 
-Your own Azerbaijani subtitle addon for Stremio. Drop an `.srt` file into
-`subtitles/`, and a minute later it is playing in Stremio. No server to rent,
-no database, no API keys.
+Your own Azerbaijani subtitle addon for Stremio, running on Cloudflare Workers.
+Drop an `.srt` file into `subtitles/`, and a minute later it is playing in
+Stremio. No server to rent, no database, no API keys.
+
+**Install URL:** `https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev/manifest.json`
 
 ---
 
@@ -13,12 +15,12 @@ no database, no API keys.
 3. Faylın adında IMDb nömrəsi olsun — məsələn `tt1375666.srt`
 4. **Commit changes**
 
-Vəssalam. 1–2 dəqiqədən sonra altyazı Stremio-da görünür. Heç nə etmək lazım
-deyil — nə kod, nə terminal.
+Vəssalam. Cloudflare özü yenidən qurur, 1–2 dəqiqədən sonra altyazı Stremio-da
+görünür. Nə kod, nə terminal lazımdır.
 
 IMDb nömrəsini haradan tapmaq olar: filmin IMDb səhifəsinin ünvanında var —
-`imdb.com/title/`**`tt1375666`**`/`. Stremio-da filmin səhifəsində də eyni nömrə
-görünür.
+`imdb.com/title/`**`tt1375666`**`/`. Stremio-da filmin səhifəsində də eyni
+nömrə görünür.
 
 ---
 
@@ -39,8 +41,7 @@ the name is yours to use.
 | `Inception 2010.srt` | no id — looked up by title automatically |
 
 Anything in `[square brackets]` becomes the label Stremio shows when a film has
-more than one subtitle, so you can keep a BluRay and a WEB-DL version side by
-side.
+more than one subtitle, so a BluRay and a WEB-DL version can sit side by side.
 
 `.srt`, `.vtt` and MicroDVD `.sub` files are all accepted.
 
@@ -49,7 +50,7 @@ side.
 ## What happens to your subtitle file
 
 Azerbaijani subtitles are usually a mess of encodings, which is why letters
-come out as `Ä±` or `þ` in other addons. Every file is put through this on the
+come out as `Ä±` or `þ` in other addons. Every file goes through this on the
 way in:
 
 - **Encoding detection** — UTF-8, UTF-16, windows-1254, ISO-8859-9,
@@ -62,94 +63,82 @@ way in:
 
 The result is plain UTF-8 WebVTT, so **ə ğ ı İ ö ş ü ç** all render correctly.
 
-The subtitle is announced to Stremio as `aze`, which Stremio displays as
+Stremio is told the language is `aze`, which it displays as
 **"Azərbaycan dili"** in the subtitle menu.
 
 ---
 
-## First-time setup
+## How it is deployed
 
-### 1. Turn on GitHub Pages
+Cloudflare is connected to this repository (Workers & Pages → your project →
+Settings → Build). On every push it runs:
 
-**Settings → Pages → Build and deployment → Source: GitHub Actions**
+```
+Build command:   npm run build      # subtitles/ -> dist/
+Deploy command:  npx wrangler deploy
+```
 
-Push anything and the included workflow builds and publishes the addon. Your
-addon page will be at `https://<username>.github.io/<repo>/`.
+`wrangler.toml` tells Wrangler to publish `worker/index.js` together with
+`dist/` as static assets, so a single Worker serves the manifest, the subtitle
+files and the addon's web page.
 
-### 2. Deploy the Worker — do not skip this
+### Why the Worker is not optional
 
-This is the part that makes it work *every time*.
-
-When Stremio plays a video it does not ask for
+When Stremio plays a video it does **not** ask for
 `/subtitles/movie/tt1375666.json`. It asks for something like:
 
 ```
 /subtitles/movie/tt1375666/videoHash=8e2b1f&videoSize=1471263&filename=Inception.mkv.json
 ```
 
-GitHub Pages has no file at that address, so it answers 404 and no subtitles
-appear. `worker/worker.js` ignores that trailing part and answers correctly.
+A static host has no file at that address, answers 404, and no subtitles
+appear. `worker/index.js` ignores that trailing part and answers correctly.
+It also adds the CORS headers Stremio needs — which is why `wrangler.toml`
+sets `run_worker_first = true`.
 
-1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages**
-   → **Create** → **Worker** (free, no card needed)
-2. Paste the whole contents of `worker/worker.js` over the template
-3. Change the `SITE` line at the top to your GitHub Pages address
-4. **Deploy**
-
-Then install this URL in Stremio:
-
-```
-https://<your-worker>.workers.dev/manifest.json
-```
-
-You never touch the Worker again — it reads the subtitle list live, so films
-you add later show up on their own.
-
-> **Alternative:** deploy this repo to [Vercel](https://vercel.com) instead
-> (import the repo, press Deploy). `vercel.json` and `api/subtitles.js` handle
-> the same thing, and Vercel rebuilds on every push. Use one or the other, not
-> both.
-
-### 3. Install in Stremio
-
-Stremio → **Addons** → paste the manifest URL into the search box at the top →
-**Install**. Or just open the addon's web page and press
-**"Stremio-ya əlavə et"**.
+Subtitle URLs are stored relative and made absolute per request, so the addon
+works on the `workers.dev` address, on a custom domain, and on `localhost`
+without any configuration.
 
 ---
 
-## Testing locally
+## Testing before you push
 
 ```bash
 npm run build     # convert everything in subtitles/ into dist/
+npm test          # check the encoding and conversion pipeline
+npm run verify    # build, then replay the exact URLs Stremio sends
 npm start         # build, then serve on http://127.0.0.1:8080
-npm test          # check the encoding/conversion pipeline
 ```
 
 `npm start` prints a `http://127.0.0.1:8080/manifest.json` URL you can install
 in the desktop Stremio to try changes before pushing.
 
 After each build, `dist/report.json` lists every file, the encoding it was
-found in, and any repairs that were applied — useful when a subtitle looks
-wrong.
+found in, and any repairs applied — the first place to look when a subtitle
+renders wrong.
+
+GitHub Actions runs `npm test` and `npm run verify` on every push, so a badly
+named or unreadable file shows up as a red cross on the commit.
 
 ---
 
 ## Troubleshooting
 
-**A film shows no subtitles.** Open your addon's web page. If the film is not
-in the list, the file name had no IMDb id — the page shows exactly which files
-were skipped and why.
+**A film shows no subtitles at all.** Open the addon's web page (the Worker's
+root URL). If the film is not listed, the file name had no IMDb id — the page
+names every skipped file and why.
 
-**Subtitles show for some films but not others during playback.** The Worker
-step was skipped. See "Deploy the Worker" above.
+**Subtitles appear in the menu but never load.** The subtitle URLs are pointing
+somewhere unreachable. Open `/subs.json` on the Worker: every entry should have
+a relative `"path"`, not an absolute `"url"` with a hostname baked in.
 
-**Letters look wrong.** Check `dist/report.json` (or the Actions log) for that
-file's detected encoding. If the detection guessed wrong, open the `.srt` in a
-text editor, save it as UTF-8, and re-upload.
+**Letters look wrong.** Check `report.json` for that file's detected encoding.
+If detection guessed wrong, open the `.srt` in a text editor, save it as UTF-8,
+and re-upload.
 
-**Stremio still shows the old list.** Stremio caches subtitle responses briefly.
-Stop and restart playback.
+**Stremio still shows the old list.** Stremio caches subtitle responses
+briefly. Stop playback and start it again.
 
 ---
 
@@ -157,14 +146,16 @@ Stop and restart playback.
 
 ```
 subtitles/                 <- you only ever touch this folder
+wrangler.toml              <- Cloudflare deployment config
+worker/index.js            <- the addon endpoint
 scripts/build.mjs          <- converts subtitles/ into dist/
 scripts/lib/decode.mjs     <- encoding detection and repair
 scripts/lib/subtitle.mjs   <- SRT / MicroDVD -> WebVTT
 scripts/lib/naming.mjs     <- reads IMDb id and episode from file names
-worker/worker.js           <- Cloudflare Worker (the addon endpoint)
-api/subtitles.js           <- Vercel equivalent
-.github/workflows/         <- builds and publishes on every push
+scripts/verify.mjs         <- replays Stremio's real requests against dist/
+api/subtitles.js           <- only needed if you host on Vercel instead
+.github/workflows/         <- runs the checks on every push
 addon.config.json          <- addon name, description, options
 ```
 
-Nothing here needs `npm install` — it is plain Node with no dependencies.
+No `npm install` needed — plain Node, zero dependencies.

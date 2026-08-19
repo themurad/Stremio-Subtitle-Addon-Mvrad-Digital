@@ -52,7 +52,7 @@ const server = createServer(async (request, response) => {
   const subtitleRequest = parseSubtitleRequest(pathname);
   if (subtitleRequest) {
     const index = await readIndex();
-    const subtitles = subtitlesFor(index, subtitleRequest.type, subtitleRequest.id);
+    const subtitles = subtitlesFor(index, subtitleRequest.type, subtitleRequest.id, url.origin);
     send(response, 200, JSON.stringify({ subtitles, cacheMaxAge: 60 }));
     return;
   }

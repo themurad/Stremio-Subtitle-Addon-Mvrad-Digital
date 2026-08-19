@@ -17,8 +17,22 @@ function episodeLabel(entry) {
 }
 
 export function renderIndexPage({ config, manifest, siteUrl, entries, skipped, notes }) {
-  const manifestUrl = `${siteUrl}/manifest.json`;
-  const deepLink = `stremio://${manifestUrl.replace(/^https?:\/\//, '')}`;
+  // When the addon is served by the Cloudflare Worker the hostname is not known
+  // at build time, so the page fills these in from the browser's own address.
+  const manifestUrl = siteUrl ? `${siteUrl}/manifest.json` : '/manifest.json';
+  const deepLink = siteUrl
+    ? `stremio://${manifestUrl.replace(/^https?:\/\//, '')}`
+    : '#';
+  const fillFromBrowser = siteUrl
+    ? ''
+    : `<script>
+        (function () {
+          var url = location.origin + '/manifest.json';
+          document.getElementById('manifest-url').textContent = url;
+          document.getElementById('manifest-link').href = url;
+          document.getElementById('install-link').href = 'stremio://' + location.host + '/manifest.json';
+        })();
+      </script>`;
 
   const rows = entries.map((entry) => {
     const badge = episodeLabel(entry);
@@ -136,10 +150,10 @@ export function renderIndexPage({ config, manifest, siteUrl, entries, skipped, n
   <p class="lead">${escapeHtml(config.description)}</p>
 
   <div class="install">
-    <a class="btn" href="${escapeHtml(deepLink)}">Stremio-ya əlavə et</a>
-    <a class="btn secondary" href="${escapeHtml(manifestUrl)}">manifest.json</a>
+    <a class="btn" id="install-link" href="${escapeHtml(deepLink)}">Stremio-ya əlavə et</a>
+    <a class="btn secondary" id="manifest-link" href="${escapeHtml(manifestUrl)}">manifest.json</a>
   </div>
-  <code class="url">${escapeHtml(manifestUrl)}</code>
+  <code class="url" id="manifest-url">${escapeHtml(siteUrl ? manifestUrl : '…')}</code>
   <p class="dim" style="margin-top:10px">Düymə işləmirsə: Stremio → Addons → yuxarıdakı axtarış sahəsinə bu ünvanı yapışdırın.</p>
 
   <h2>İçindəkilər — ${entries.length} video, ${entries.reduce((total, entry) => total + entry.subtitles.length, 0)} altyazı</h2>
@@ -161,6 +175,7 @@ export function renderIndexPage({ config, manifest, siteUrl, entries, skipped, n
     v${escapeHtml(manifest.version)} · son yenilənmə ${escapeHtml(new Date().toISOString().slice(0, 16).replace('T', ' '))} UTC
   </footer>
 </div>
+${fillFromBrowser}
 </body>
 </html>
 `;

@@ -34,13 +34,17 @@ export function parseSubtitleRequest(pathname) {
   return { type, id, extra };
 }
 
-export function subtitlesFor(index, type, id) {
+/**
+ * @param base origin the subtitle files are served from, e.g. https://x.workers.dev
+ *   Paths in the index are relative so one build works on any hostname.
+ */
+export function subtitlesFor(index, type, id, base = '') {
   const video = index?.videos?.[id];
   if (!video) return [];
   if (video.type && type && video.type !== type) return [];
   return video.subtitles.map((sub) => ({
     id: sub.id,
-    url: sub.url,
+    url: sub.path ? `${base}/${sub.path}` : sub.url,
     lang: sub.lang,
   }));
 }

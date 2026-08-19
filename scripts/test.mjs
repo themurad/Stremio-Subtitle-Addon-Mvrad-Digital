@@ -209,12 +209,26 @@ check('a stream path is ignored', parseSubtitleRequest('/stream/movie/tt1.json')
 {
   const index = {
     videos: {
-      'tt1375666': { type: 'movie', subtitles: [{ id: 'az-1', url: 'https://x/a.vtt', lang: 'aze' }] },
+      'tt1375666': {
+        type: 'movie',
+        subtitles: [{ id: 'az-1', path: 'files/movie/tt1375666.az.vtt', lang: 'aze' }],
+      },
     },
   };
-  check('a known film resolves', subtitlesFor(index, 'movie', 'tt1375666').length, 1);
-  check('an unknown film returns nothing', subtitlesFor(index, 'movie', 'tt9999999'), []);
-  check('the wrong type returns nothing', subtitlesFor(index, 'series', 'tt1375666'), []);
+  const base = 'https://addon.workers.dev';
+  check('a known film resolves', subtitlesFor(index, 'movie', 'tt1375666', base).length, 1);
+  check(
+    'relative paths become absolute urls',
+    subtitlesFor(index, 'movie', 'tt1375666', base)[0].url,
+    'https://addon.workers.dev/files/movie/tt1375666.az.vtt',
+  );
+  check('an unknown film returns nothing', subtitlesFor(index, 'movie', 'tt9999999', base), []);
+  check('the wrong type returns nothing', subtitlesFor(index, 'series', 'tt1375666', base), []);
+  check(
+    'a pre-baked absolute url still works',
+    subtitlesFor({ videos: { tt1: { type: 'movie', subtitles: [{ id: 'a', url: 'https://p/x.vtt', lang: 'aze' }] } } }, 'movie', 'tt1', base)[0].url,
+    'https://p/x.vtt',
+  );
 }
 
 // ---------------------------------------------------------------------------
