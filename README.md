@@ -1,271 +1,170 @@
-# 🎬 MVRAD DIGITAL — Azerbaijani Subtitles for Stremio
+# Azərbaycan Altyazılar — Stremio addon
 
-A community Stremio addon providing carefully prepared **Azerbaijani (`AZE`) subtitles** for supported movies.
-
-Our goal is simple: provide Azerbaijani-speaking Stremio users with subtitles that are:
-
-* 🇦🇿 Naturally translated into Azerbaijani
-* ⏱️ Properly synchronized with supported releases
-* 🎬 Optimized for movie dialogue and scene timing
-* ✍️ Reviewed for spelling, grammar and readability
-* 🔄 Continuously expanded with new movies
+Your own Azerbaijani subtitle addon for Stremio. Drop an `.srt` file into
+`subtitles/`, and a minute later it is playing in Stremio. No server to rent,
+no database, no API keys.
 
 ---
 
-## 🚀 Install in Stremio
+## Yeni film əlavə etmək (30 saniyə)
 
-### Addon URL
+1. GitHub-da bu repozitoriyada **`subtitles/`** qovluğunu açın
+2. **Add file → Upload files** → `.srt` faylını sürüşdürün
+3. Faylın adında IMDb nömrəsi olsun — məsələn `tt1375666.srt`
+4. **Commit changes**
 
-Once the addon is deployed, use:
+Vəssalam. 1–2 dəqiqədən sonra altyazı Stremio-da görünür. Heç nə etmək lazım
+deyil — nə kod, nə terminal.
 
-`https://themurad.github.io/Stremio-Subtitle-Addon-Mvrad-Digital/manifest.json`
-
-### Installation
-
-1. Open **Stremio**.
-
-2. Go to **Add-ons**.
-
-3. Choose **Add Addon** or the custom addon URL option.
-
-4. Paste:
-
-   `https://themurad.github.io/Stremio-Subtitle-Addon-Mvrad-Digital/manifest.json`
-
-5. Install **MVRAD DIGITAL Azerbaijani Subtitles**.
-
-6. Open a supported movie.
-
-7. Start playback.
-
-8. Open **Subtitles / CC**.
-
-9. Select the Azerbaijani subtitle provided by the addon.
-
-You only need to install the addon **once**.
-
-When new movies are added to the database, they become available through the same addon automatically.
+IMDb nömrəsini haradan tapmaq olar: filmin IMDb səhifəsinin ünvanında var —
+`imdb.com/title/`**`tt1375666`**`/`. Stremio-da filmin səhifəsində də eyni nömrə
+görünür.
 
 ---
 
-## 🇦🇿 Subtitle Quality
+## File naming
 
-Subtitles are prepared specifically for Azerbaijani viewers.
+The build reads the IMDb id straight out of the file name. Everything else in
+the name is yours to use.
 
-We aim to avoid:
+| File name | What it becomes |
+| --- | --- |
+| `tt1375666.srt` | the film Inception |
+| `tt1375666 Inception.srt` | same, easier to recognise in the folder |
+| `Inception (2010) tt1375666 [BluRay].srt` | same film, shown in Stremio as "BluRay" |
+| `tt1375666 [WEB-DL].srt` | a second subtitle for the same film |
+| `tt0903747 S01E02.srt` | Breaking Bad, season 1, episode 2 |
+| `tt0903747-1-2.srt` | the same episode, shorter |
+| `series/Breaking Bad/tt0903747/S02E05.srt` | folders work too |
+| `Inception 2010.srt` | no id — looked up by title automatically |
 
-* Literal word-for-word machine translation
-* Incorrect Azerbaijani characters
-* Dialogue appearing in the wrong scene
-* Poorly divided sentences
-* Unnatural expressions
-* Inconsistent names and terminology
+Anything in `[square brackets]` becomes the label Stremio shows when a film has
+more than one subtitle, so you can keep a BluRay and a WEB-DL version side by
+side.
 
-Where necessary, subtitles are synchronized individually for specific movie releases.
-
----
-
-## ⏱️ Release Synchronization
-
-Different releases of the same movie may use slightly different timing.
-
-Examples:
-
-* WEB-DL
-* WEBRip
-* BluRay
-* YTS
-* Different frame rates or cuts
-
-For this reason, a subtitle may be prepared specifically for a particular release.
-
-The addon supports independent timing corrections for each subtitle.
-
-Example:
-
-```json
-"offset_ms": 750
-```
-
-means the subtitle is shifted:
-
-`+0.750 seconds`
-
-A negative value shifts subtitles earlier:
-
-```json
-"offset_ms": -750
-```
+`.srt`, `.vtt` and MicroDVD `.sub` files are all accepted.
 
 ---
 
-## 🎥 Supported Movies
+## What happens to your subtitle file
 
-The library is continuously growing.
+Azerbaijani subtitles are usually a mess of encodings, which is why letters
+come out as `Ä±` or `þ` in other addons. Every file is put through this on the
+way in:
 
-If a movie does not show an Azerbaijani subtitle, it most likely has not been added yet.
+- **Encoding detection** — UTF-8, UTF-16, windows-1254, ISO-8859-9,
+  windows-1251, windows-1250, windows-1252
+- **Damage repair** — files saved through the wrong codepage twice (`Ã¼` →
+  `ü`), files read as latin-1 (`þýð` → `şığ`), Cyrillic look-alikes (`Ә` → `Ə`)
+- **Format conversion** — SRT and MicroDVD become WebVTT, which Stremio plays
+  natively so it never has to guess an encoding
+- **Cleanup** — `<font>` and `{\an8}` tags removed, broken timings fixed
 
-New titles can be added without requiring users to reinstall the addon.
+The result is plain UTF-8 WebVTT, so **ə ğ ı İ ö ş ü ç** all render correctly.
 
----
-
-## 🆕 How Updates Work
-
-The addon is hosted through **GitHub Pages**.
-
-When a new subtitle is added:
-
-`New Azerbaijani SRT → database updated → GitHub deploys → Stremio receives it`
-
-Users do not need to download a new version of the addon.
-
----
-
-## 🛠️ For Maintainers — Adding a New Movie
-
-### 1. Prepare the subtitle
-
-Use a properly synchronized Azerbaijani `.srt` file encoded in UTF-8.
-
-### 2. Find the IMDb ID
-
-Example:
-
-`tt1375666`
-
-### 3. Upload the SRT
-
-Place it inside:
-
-```text
-source_srt/
-```
-
-Example:
-
-```text
-source_srt/Inception.2010.Azerbaijani.srt
-```
-
-### 4. Edit
-
-```text
-data/movies.json
-```
-
-Add:
-
-```json
-"tt1375666": {
-  "title": "Inception (2010)",
-  "type": "movie",
-  "subtitles": [
-    {
-      "id": "aze-main",
-      "lang": "aze",
-      "source": "source_srt/Inception.2010.Azerbaijani.srt",
-      "output_name": "Inception.2010.Azerbaijani.srt",
-      "offset_ms": 0
-    }
-  ]
-}
-```
-
-### 5. Commit
-
-Commit the new SRT and database change to the `main` branch.
-
-GitHub Actions will automatically rebuild and deploy the addon.
+The subtitle is announced to Stremio as `aze`, which Stremio displays as
+**"Azərbaycan dili"** in the subtitle menu.
 
 ---
 
-## 💻 Optional Windows Tool
+## First-time setup
 
-The repository also includes:
+### 1. Turn on GitHub Pages
 
-```text
-add_movie.py
+**Settings → Pages → Build and deployment → Source: GitHub Actions**
+
+Push anything and the included workflow builds and publishes the addon. Your
+addon page will be at `https://<username>.github.io/<repo>/`.
+
+### 2. Deploy the Worker — do not skip this
+
+This is the part that makes it work *every time*.
+
+When Stremio plays a video it does not ask for
+`/subtitles/movie/tt1375666.json`. It asks for something like:
+
+```
+/subtitles/movie/tt1375666/videoHash=8e2b1f&videoSize=1471263&filename=Inception.mkv.json
 ```
 
-Example:
+GitHub Pages has no file at that address, so it answers 404 and no subtitles
+appear. `worker/worker.js` ignores that trailing part and answers correctly.
 
-```bat
-python add_movie.py tt1375666 "Inception (2010)" "C:\Subtitles\Inception.az.srt"
+1. Go to [dash.cloudflare.com](https://dash.cloudflare.com) → **Workers & Pages**
+   → **Create** → **Worker** (free, no card needed)
+2. Paste the whole contents of `worker/worker.js` over the template
+3. Change the `SITE` line at the top to your GitHub Pages address
+4. **Deploy**
+
+Then install this URL in Stremio:
+
+```
+https://<your-worker>.workers.dev/manifest.json
 ```
 
-With a `+750 ms` timing correction:
+You never touch the Worker again — it reads the subtitle list live, so films
+you add later show up on their own.
 
-```bat
-python add_movie.py tt1375666 "Inception (2010)" "C:\Subtitles\Inception.az.srt" --offset-ms 750
-```
+> **Alternative:** deploy this repo to [Vercel](https://vercel.com) instead
+> (import the repo, press Deploy). `vercel.json` and `api/subtitles.js` handle
+> the same thing, and Vercel rebuilds on every push. Use one or the other, not
+> both.
 
-Then commit and push the generated changes.
+### 3. Install in Stremio
+
+Stremio → **Addons** → paste the manifest URL into the search box at the top →
+**Install**. Or just open the addon's web page and press
+**"Stremio-ya əlavə et"**.
 
 ---
 
-## 📂 Project Structure
+## Testing locally
 
-```text
-Stremio-Subtitle-Addon-Mvrad-Digital/
-│
-├── .github/
-│   └── workflows/
-│       └── pages.yml
-│
-├── data/
-│   └── movies.json
-│
-├── source_srt/
-│   └── Azerbaijani subtitle files
-│
-├── add_movie.py
-├── build.py
-├── manifest.template.json
-└── README.md
+```bash
+npm run build     # convert everything in subtitles/ into dist/
+npm start         # build, then serve on http://127.0.0.1:8080
+npm test          # check the encoding/conversion pipeline
 ```
 
----
+`npm start` prints a `http://127.0.0.1:8080/manifest.json` URL you can install
+in the desktop Stremio to try changes before pushing.
 
-## ❓ Subtitle Not Synchronized?
-
-First make sure you are using the intended movie release.
-
-If the subtitle is consistently early or late, a timing correction can be added for that release.
-
-If the timing gradually becomes worse throughout the movie, the subtitle is probably synchronized for a different cut, frame rate, or release and should be retimed separately.
+After each build, `dist/report.json` lists every file, the encoding it was
+found in, and any repairs that were applied — useful when a subtitle looks
+wrong.
 
 ---
 
-## 💬 Requests & Problems
+## Troubleshooting
 
-Found a synchronization issue, translation mistake or want to request a movie?
+**A film shows no subtitles.** Open your addon's web page. If the film is not
+in the list, the file name had no IMDb id — the page shows exactly which files
+were skipped and why.
 
-Use the repository's **Issues** section.
+**Subtitles show for some films but not others during playback.** The Worker
+step was skipped. See "Deploy the Worker" above.
 
-When reporting synchronization problems, please include:
+**Letters look wrong.** Check `dist/report.json` (or the Actions log) for that
+file's detected encoding. If the detection guessed wrong, open the `.srt` in a
+text editor, save it as UTF-8, and re-upload.
 
-* Movie name
-* Year
-* IMDb ID
-* Release name
-* Example timestamp where the issue occurs
+**Stremio still shows the old list.** Stremio caches subtitle responses briefly.
+Stop and restart playback.
 
-Example:
+---
 
-```text
-Movie: Example Movie (2026)
-IMDb: tt12345678
-Release: 1080p WEBRip YTS
-Problem: Subtitle is approximately 1.2 seconds late at 00:34:20
+## Layout
+
+```
+subtitles/                 <- you only ever touch this folder
+scripts/build.mjs          <- converts subtitles/ into dist/
+scripts/lib/decode.mjs     <- encoding detection and repair
+scripts/lib/subtitle.mjs   <- SRT / MicroDVD -> WebVTT
+scripts/lib/naming.mjs     <- reads IMDb id and episode from file names
+worker/worker.js           <- Cloudflare Worker (the addon endpoint)
+api/subtitles.js           <- Vercel equivalent
+.github/workflows/         <- builds and publishes on every push
+addon.config.json          <- addon name, description, options
 ```
 
-This information makes synchronization fixes much faster.
-
----
-
-## ❤️ MVRAD DIGITAL
-
-Made for Azerbaijani movie viewers.
-
-**MVRAD DIGITAL**
-Better subtitles. Better timing. Better viewing.
+Nothing here needs `npm install` — it is plain Node with no dependencies.

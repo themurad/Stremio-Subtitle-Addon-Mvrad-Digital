@@ -1,0 +1,27 @@
+{
+  "id": "com.themurad.azerbaycan.altyazi",
+  "version": "1.0.0",
+  "name": "Azərbaycan Altyazılar",
+  "description": "Azərbaycan dilində altyazılar. Şəxsi kolleksiya — yeni altyazı əlavə etmək üçün .srt faylını repozitoriyaya atmaq kifayətdir.",
+  "logo": "",
+  "background": "",
+
+  "_comment_hosting": "siteUrl = where the built files live (GitHub Pages). Leave empty and the build will guess it from the GITHUB_REPOSITORY env var in Actions.",
+  "siteUrl": "",
+
+  "_comment_lang": "aze = ISO 639-2 for Azerbaijani. Stremio displays it as 'Azərbaycan dili'. Do not change unless you know what you are doing.",
+  "lang": "aze",
+
+  "_comment_cleanup": "Optional text cleanup applied to every subtitle.",
+  "cleanup": {
+    "stripFontTags": true,
+    "stripAssTags": true,
+    "removePromoCues": false
+  },
+
+  "_comment_lookup": "If a file has no ttXXXXXXX id in its name, look the title up in Stremio's own Cinemeta catalog.",
+  "lookupTitlesOnline": true,
+
+  "_comment_microdvd": "Frames-per-second assumed when converting MicroDVD (.sub) files that don't declare their own.",
+  "microDvdFps": 23.976
+}
