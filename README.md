@@ -1,91 +1,271 @@
-# AZ Subtitles — Stremio GitHub Pages Addon
+# 🎬 MVRAD DIGITAL — Azerbaijani Subtitles for Stremio
 
-Free static Stremio subtitle addon for your own Azerbaijani `.srt` files.
+A community Stremio addon providing carefully prepared **Azerbaijani (`AZE`) subtitles** for supported movies.
 
-## First setup
+Our goal is simple: provide Azerbaijani-speaking Stremio users with subtitles that are:
 
-1. Create a **public GitHub repository** named `az-subtitles-stremio`.
-2. Upload everything from this project to that repository.
-3. Keep the default branch as `main`.
-4. Open **Settings → Pages**.
-5. Under **Build and deployment → Source**, choose **GitHub Actions**.
-6. Commit/push. The included workflow builds and publishes the addon.
-7. Your manifest URL becomes:
+* 🇦🇿 Naturally translated into Azerbaijani
+* ⏱️ Properly synchronized with supported releases
+* 🎬 Optimized for movie dialogue and scene timing
+* ✍️ Reviewed for spelling, grammar and readability
+* 🔄 Continuously expanded with new movies
 
-   `https://YOUR_GITHUB_USERNAME.github.io/az-subtitles-stremio/manifest.json`
+---
 
-8. In Stremio, open **Add-ons**, paste that manifest URL, and install it.
+## 🚀 Install in Stremio
 
-## Current first movie
+### Addon URL
 
-- Obsession (2025)
-- IMDb: `tt37287335`
-- Language: Azerbaijani (`aze`)
-- Source release: YTS WEBRip
-- Stremio timing correction: `+750 ms`
+Once the addon is deployed, use:
 
-The original source SRT stays unchanged. `build.py` applies the configured timing offset only to the published copy.
+`https://themurad.github.io/Stremio-Subtitle-Addon-Mvrad-Digital/manifest.json`
 
-## Add a new movie
+### Installation
 
-Upload the Azerbaijani SRT into `source_srt/`, then add a new entry to `data/movies.json`.
+1. Open **Stremio**.
+
+2. Go to **Add-ons**.
+
+3. Choose **Add Addon** or the custom addon URL option.
+
+4. Paste:
+
+   `https://themurad.github.io/Stremio-Subtitle-Addon-Mvrad-Digital/manifest.json`
+
+5. Install **MVRAD DIGITAL Azerbaijani Subtitles**.
+
+6. Open a supported movie.
+
+7. Start playback.
+
+8. Open **Subtitles / CC**.
+
+9. Select the Azerbaijani subtitle provided by the addon.
+
+You only need to install the addon **once**.
+
+When new movies are added to the database, they become available through the same addon automatically.
+
+---
+
+## 🇦🇿 Subtitle Quality
+
+Subtitles are prepared specifically for Azerbaijani viewers.
+
+We aim to avoid:
+
+* Literal word-for-word machine translation
+* Incorrect Azerbaijani characters
+* Dialogue appearing in the wrong scene
+* Poorly divided sentences
+* Unnatural expressions
+* Inconsistent names and terminology
+
+Where necessary, subtitles are synchronized individually for specific movie releases.
+
+---
+
+## ⏱️ Release Synchronization
+
+Different releases of the same movie may use slightly different timing.
+
+Examples:
+
+* WEB-DL
+* WEBRip
+* BluRay
+* YTS
+* Different frame rates or cuts
+
+For this reason, a subtitle may be prepared specifically for a particular release.
+
+The addon supports independent timing corrections for each subtitle.
 
 Example:
 
 ```json
-"tt1234567": {
-  "title": "Movie Name (2026)",
+"offset_ms": 750
+```
+
+means the subtitle is shifted:
+
+`+0.750 seconds`
+
+A negative value shifts subtitles earlier:
+
+```json
+"offset_ms": -750
+```
+
+---
+
+## 🎥 Supported Movies
+
+The library is continuously growing.
+
+If a movie does not show an Azerbaijani subtitle, it most likely has not been added yet.
+
+New titles can be added without requiring users to reinstall the addon.
+
+---
+
+## 🆕 How Updates Work
+
+The addon is hosted through **GitHub Pages**.
+
+When a new subtitle is added:
+
+`New Azerbaijani SRT → database updated → GitHub deploys → Stremio receives it`
+
+Users do not need to download a new version of the addon.
+
+---
+
+## 🛠️ For Maintainers — Adding a New Movie
+
+### 1. Prepare the subtitle
+
+Use a properly synchronized Azerbaijani `.srt` file encoded in UTF-8.
+
+### 2. Find the IMDb ID
+
+Example:
+
+`tt1375666`
+
+### 3. Upload the SRT
+
+Place it inside:
+
+```text
+source_srt/
+```
+
+Example:
+
+```text
+source_srt/Inception.2010.Azerbaijani.srt
+```
+
+### 4. Edit
+
+```text
+data/movies.json
+```
+
+Add:
+
+```json
+"tt1375666": {
+  "title": "Inception (2010)",
   "type": "movie",
   "subtitles": [
     {
       "id": "aze-main",
       "lang": "aze",
-      "source": "source_srt/Movie.Name.Azerbaijani.srt",
-      "output_name": "Movie.Name.Azerbaijani.srt",
+      "source": "source_srt/Inception.2010.Azerbaijani.srt",
+      "output_name": "Inception.2010.Azerbaijani.srt",
       "offset_ms": 0
     }
   ]
 }
 ```
 
-Commit the changes. GitHub Actions rebuilds the Stremio addon automatically.
+### 5. Commit
 
-## Add from Windows with one command
+Commit the new SRT and database change to the `main` branch.
 
-```bat
-python add_movie.py tt1234567 "Movie Name (2026)" "C:\Subtitles\movie.srt"
+GitHub Actions will automatically rebuild and deploy the addon.
+
+---
+
+## 💻 Optional Windows Tool
+
+The repository also includes:
+
+```text
+add_movie.py
 ```
 
-For subtitles 0.75 seconds later:
+Example:
 
 ```bat
-python add_movie.py tt1234567 "Movie Name (2026)" "C:\Subtitles\movie.srt" --offset-ms 750
+python add_movie.py tt1375666 "Inception (2010)" "C:\Subtitles\Inception.az.srt"
 ```
 
-For subtitles 0.75 seconds earlier:
+With a `+750 ms` timing correction:
 
 ```bat
-python add_movie.py tt1234567 "Movie Name (2026)" "C:\Subtitles\movie.srt" --offset-ms -750
+python add_movie.py tt1375666 "Inception (2010)" "C:\Subtitles\Inception.az.srt" --offset-ms 750
 ```
 
-Then commit/push the changed files.
+Then commit and push the generated changes.
 
-## Multiple releases for one movie
+---
 
-Add another subtitle object inside the movie's `subtitles` array with a unique `id`, source file, and timing offset.
+## 📂 Project Structure
 
-## Build locally
-
-```bat
-python build.py --base-url https://YOUR_GITHUB_USERNAME.github.io/az-subtitles-stremio
+```text
+Stremio-Subtitle-Addon-Mvrad-Digital/
+│
+├── .github/
+│   └── workflows/
+│       └── pages.yml
+│
+├── data/
+│   └── movies.json
+│
+├── source_srt/
+│   └── Azerbaijani subtitle files
+│
+├── add_movie.py
+├── build.py
+├── manifest.template.json
+└── README.md
 ```
 
-Generated files appear in `_site/`.
+---
 
-## Notes
+## ❓ Subtitle Not Synchronized?
 
-- Use the correct IMDb ID (`tt...`).
-- Keep SRT files UTF-8.
-- Positive `offset_ms` = subtitle appears later.
-- Negative `offset_ms` = subtitle appears earlier.
-- Your PC does not need to stay on after GitHub Pages deploys it.
+First make sure you are using the intended movie release.
+
+If the subtitle is consistently early or late, a timing correction can be added for that release.
+
+If the timing gradually becomes worse throughout the movie, the subtitle is probably synchronized for a different cut, frame rate, or release and should be retimed separately.
+
+---
+
+## 💬 Requests & Problems
+
+Found a synchronization issue, translation mistake or want to request a movie?
+
+Use the repository's **Issues** section.
+
+When reporting synchronization problems, please include:
+
+* Movie name
+* Year
+* IMDb ID
+* Release name
+* Example timestamp where the issue occurs
+
+Example:
+
+```text
+Movie: Example Movie (2026)
+IMDb: tt12345678
+Release: 1080p WEBRip YTS
+Problem: Subtitle is approximately 1.2 seconds late at 00:34:20
+```
+
+This information makes synchronization fixes much faster.
+
+---
+
+## ❤️ MVRAD DIGITAL
+
+Made for Azerbaijani movie viewers.
+
+**MVRAD DIGITAL**
+Better subtitles. Better timing. Better viewing.
