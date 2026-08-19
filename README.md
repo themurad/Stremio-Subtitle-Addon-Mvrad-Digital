@@ -1,186 +1,387 @@
-# Azərbaycan Altyazılar — Stremio addon
+<div align="center">
 
-Your own Azerbaijani subtitle addon for Stremio, running on Cloudflare Workers.
-Drop an `.srt` file into `subtitles/`, and a minute later it is playing in
-Stremio. No server to rent, no database, no API keys.
+<img src="assets/logo.png" width="104" alt="">
 
-**Install URL:** `https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev/manifest.json`
+# Azərbaycan Altyazılar
 
----
+**Stremio üçün Azərbaycan dilində altyazı əlavəsi**
+<br>
+*Azerbaijani subtitles for Stremio*
 
-## Yeni film əlavə etmək (30 saniyə)
+<br>
 
-1. GitHub-da bu repozitoriyada **`subtitles/`** qovluğunu açın
-2. **Add file → Upload files** → `.srt` faylını sürüşdürün
-3. Faylın adında IMDb nömrəsi olsun — məsələn `tt1375666.srt`
-4. **Commit changes**
+### [➜ Quraşdır / Install](https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev)
 
-Vəssalam. Cloudflare özü yenidən qurur, 1–2 dəqiqədən sonra altyazı Stremio-da
-görünür. Nə kod, nə terminal lazımdır.
+`https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev/manifest.json`
 
-IMDb nömrəsini haradan tapmaq olar: filmin IMDb səhifəsinin ünvanında var —
-`imdb.com/title/`**`tt1375666`**`/`. Stremio-da filmin səhifəsində də eyni
-nömrə görünür.
+<br>
+
+**[🇦🇿 Azərbaycanca](#-azərbaycanca)** · **[🇬🇧 English](#-english)**
+
+</div>
 
 ---
 
-## File naming
+## 🇦🇿 Azərbaycanca
 
-The build reads the IMDb id straight out of the file name. Everything else in
-the name is yours to use.
+### Bu nədir?
 
-| File name | What it becomes |
-| --- | --- |
-| `tt1375666.srt` | the film Inception |
-| `tt1375666 Inception.srt` | same, easier to recognise in the folder |
-| `Inception (2010) tt1375666 [BluRay].srt` | same film, shown in Stremio as "BluRay" |
-| `tt1375666 [WEB-DL].srt` | a second subtitle for the same film |
-| `tt0903747 S01E02.srt` | Breaking Bad, season 1, episode 2 |
-| `tt0903747-1-2.srt` | the same episode, shorter |
-| `series/Breaking Bad/tt0903747/S02E05.srt` | folders work too |
-| `Inception 2010.srt` | no id — looked up by title automatically |
+Stremio-ya bir dəfə quraşdırdığınız altyazı əlavəsidir. Quraşdırdıqdan sonra
+film və ya serial baxarkən altyazı menyusunda **«Azərbaycan dili»** variantı
+görünür — sadəcə seçirsiniz.
 
-Anything in `[square brackets]` becomes the label Stremio shows when a film has
-more than one subtitle, so a BluRay and a WEB-DL version can sit side by side.
+Nə fayl axtarmaq, nə yükləmək, nə də hər dəfə əl ilə altyazı əlavə etmək lazım
+deyil. Bir dəfə quraşdırırsınız və unudursunuz.
 
-`.srt`, `.vtt` and MicroDVD `.sub` files are all accepted.
+> **Qeyd:** Bu əlavə film və ya video **yayımlamır** — yalnız altyazı verir.
+> Filmləri həmişəki kimi Stremio-da baxırsınız.
+
+**Pulsuzdur.** Qeydiyyat, abunə və ya ödəniş tələb olunmur.
+
+<br>
+
+### Necə quraşdırılır?
+
+<details open>
+<summary><b>💻 Kompüter — Windows, macOS, Linux</b></summary>
+
+<br>
+
+1. Stremio proqramını açın
+2. Yuxarı sağdakı **puzzle** ikonuna basın — **Addons** bölməsi açılacaq
+3. Səhifənin yuxarısındakı **Addon Repository URL** sahəsinə bu ünvanı yapışdırın:
+   ```
+   https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev/manifest.json
+   ```
+4. **Install** düyməsinə basın
+
+**Daha asan yol:** [bu səhifəni](https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev)
+açıb **«Stremio-ya əlavə et»** düyməsinə basın — proqram özü açılır.
+
+</details>
+
+<details>
+<summary><b>📱 Android telefon və Android TV</b></summary>
+
+<br>
+
+1. Stremio tətbiqini açın
+2. Sol menyudan **Addons** bölməsinə keçin
+3. Yuxarıdakı ünvan sahəsinə linki yazın və **Install** basın
+
+> **Televizor üçün məsləhət:** pultla uzun link yazmaq əziyyətdir.
+> Kompüterdə və ya telefonda **eyni Stremio hesabına** daxil olub quraşdırın —
+> əlavə televizorda avtomatik görünəcək.
+>
+> Qonaq (guest) rejimində sinxronizasiya işləmir, ona görə e-poçt ilə hesab
+> yaradın.
+
+</details>
+
+<details>
+<summary><b>🍎 iPhone və iPad</b></summary>
+
+<br>
+
+App Store-da tam funksiyalı Stremio tətbiqi yoxdur — iOS-da Stremio brauzer
+versiyası ilə istifadə olunur.
+
+1. **Safari**-də `web.stremio.com` ünvanını açın
+2. **Paylaş** → **Ana ekrana əlavə et** — tətbiq kimi işləyəcək
+3. Hesabınıza daxil olun
+4. **Addons** → ünvanı yapışdırın → **Install**
+
+</details>
+
+<details>
+<summary><b>🌐 Brauzer</b></summary>
+
+<br>
+
+1. `web.stremio.com` ünvanını açın
+2. Hesabınıza daxil olun
+3. **Addons** bölməsində ünvanı yapışdırın və **Install** basın
+
+</details>
+
+<br>
+
+### Altyazını necə açmaq olar?
+
+Quraşdırdıqdan sonra ən çox verilən sual budur.
+
+| | |
+|---|---|
+| **1** | Filmi və ya serialı **oynadın** — baxış başlasın |
+| **2** | Ekranın aşağısındakı **altyazı (CC)** ikonuna toxunun |
+| **3** | Siyahıdan **Azərbaycan dili** seçin |
+
+> ⚠️ Altyazı siyahısı yalnız **film oynamağa başlayandan sonra** görünür —
+> filmin təsvir səhifəsində yox. Bu, Stremio-nun iş prinsipidir.
+
+<br>
+
+### Suallar
+
+<details>
+<summary><b>Altyazı görünmür, nə edim?</b></summary>
+
+<br>
+
+Əvvəlcə filmi oynadın — altyazı menyusu yalnız baxış başlayandan sonra aktiv
+olur. Hələ də yoxdursa, deməli bu film hələ kolleksiyaya əlavə olunmayıb.
+Stremio-nu bağlayıb yenidən açmaq da bəzən kömək edir.
+
+</details>
+
+<details>
+<summary><b>Pulludur?</b></summary>
+
+<br>
+
+Xeyr. Tamamilə pulsuzdur — qeydiyyat, abunə və ya ödəniş yoxdur.
+
+</details>
+
+<details>
+<summary><b>Hansı filmlər var?</b></summary>
+
+<br>
+
+Cari siyahını [əlavənin səhifəsində](https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev)
+görə bilərsiniz. Kolleksiya mütəmadi genişlənir.
+
+</details>
+
+<details>
+<summary><b>Altyazı filmdən tez və ya gec gedir</b></summary>
+
+<br>
+
+Bu, altyazının deyil, videonun fərqli versiyasından olur. Stremio-da baxış
+zamanı altyazı parametrlərində **gecikmə (delay)** ayarını irəli-geri
+sürüşdürərək uyğunlaşdıra bilərsiniz.
+
+</details>
+
+<details>
+<summary><b>Hərflər düzgün görünmür (ə, ğ, ş, ı)</b></summary>
+
+<br>
+
+Bütün altyazılar UTF-8 formatındadır, ona görə Azərbaycan hərfləri düzgün
+görünməlidir. Problem varsa, Stremio-nun altyazı parametrlərində şrifti
+dəyişməyi yoxlayın.
+
+</details>
+
+<details>
+<summary><b>Əlavəni necə silmək olar?</b></summary>
+
+<br>
+
+Stremio → **Addons** → **My Addons** → əlavənin yanındakı **Uninstall**.
+
+</details>
+
+<br>
+
+### Dəstəklənən cihazlar
+
+| Cihaz | Vəziyyət |
+|---|---|
+| Windows · macOS · Linux | ✅ Tam işləyir |
+| Android telefon və planşet | ✅ Tam işləyir |
+| Android TV · Google TV | ✅ Tam işləyir |
+| Brauzer (web.stremio.com) | ✅ Tam işləyir |
+| iPhone · iPad | ✅ Brauzer versiyası ilə |
+
+<br>
 
 ---
 
-## What happens to your subtitle file
+## 🇬🇧 English
 
-Azerbaijani subtitles are usually a mess of encodings, which is why letters
-come out as `Ä±` or `þ` in other addons. Every file goes through this on the
-way in:
+### What is this?
 
-- **Encoding detection** — UTF-8, UTF-16, windows-1254, ISO-8859-9,
-  windows-1251, windows-1250, windows-1252
-- **Damage repair** — files saved through the wrong codepage twice (`Ã¼` →
-  `ü`), files read as latin-1 (`þýð` → `şığ`), Cyrillic look-alikes (`Ә` → `Ə`)
-- **Format conversion** — SRT and MicroDVD become WebVTT, which Stremio plays
-  natively so it never has to guess an encoding
-- **Cleanup** — `<font>` and `{\an8}` tags removed, broken timings fixed
+A subtitle addon for Stremio. You install it once, and from then on every film
+and series you watch shows **"Azərbaycan dili"** in the subtitle menu — you
+just pick it.
 
-The result is plain UTF-8 WebVTT, so **ə ğ ı İ ö ş ü ç** all render correctly.
+No hunting for files, no downloading, no adding subtitles by hand each time.
+Install it once and forget it.
 
-Stremio is told the language is `aze`, which it displays as
-**"Azərbaycan dili"** in the subtitle menu.
+> **Note:** This addon does **not** stream films or video — it only provides
+> subtitles. You watch films in Stremio exactly as you always have.
+
+**It's free.** No account, no subscription, no payment.
+
+<br>
+
+### How to install
+
+<details open>
+<summary><b>💻 Computer — Windows, macOS, Linux</b></summary>
+
+<br>
+
+1. Open Stremio
+2. Click the **puzzle** icon in the top right to open **Addons**
+3. Paste this address into the **Addon Repository URL** field at the top:
+   ```
+   https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev/manifest.json
+   ```
+4. Click **Install**
+
+**Easier:** open [the addon page](https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev)
+and press **"Stremio-ya əlavə et"** — Stremio opens by itself.
+
+</details>
+
+<details>
+<summary><b>📱 Android phone and Android TV</b></summary>
+
+<br>
+
+1. Open the Stremio app
+2. Go to **Addons** in the left menu
+3. Enter the address in the field at the top and press **Install**
+
+> **Tip for TV:** typing a long URL with a remote is painful. Install it on a
+> computer or phone while signed into the **same Stremio account** — it will
+> appear on the TV automatically.
+>
+> Sync does not work in guest mode, so create an account with an email address.
+
+</details>
+
+<details>
+<summary><b>🍎 iPhone and iPad</b></summary>
+
+<br>
+
+There is no fully featured Stremio app on the App Store — on iOS, Stremio is
+used through the browser.
+
+1. Open `web.stremio.com` in **Safari**
+2. **Share** → **Add to Home Screen** — it then behaves like an app
+3. Sign in to your account
+4. **Addons** → paste the address → **Install**
+
+</details>
+
+<details>
+<summary><b>🌐 Browser</b></summary>
+
+<br>
+
+1. Open `web.stremio.com`
+2. Sign in to your account
+3. Paste the address under **Addons** and press **Install**
+
+</details>
+
+<br>
+
+### How to turn subtitles on
+
+This is the question everyone asks after installing.
+
+| | |
+|---|---|
+| **1** | **Start playing** the film or episode |
+| **2** | Tap the **subtitle (CC)** icon at the bottom of the screen |
+| **3** | Choose **Azərbaycan dili** from the list |
+
+> ⚠️ The subtitle list only appears **once playback has started** — not on the
+> film's detail page. That is simply how Stremio works.
+
+<br>
+
+### FAQ
+
+<details>
+<summary><b>No subtitles are showing</b></summary>
+
+<br>
+
+Start playing the film first — the subtitle menu is only active during
+playback. If it is still not there, that film has not been added to the
+collection yet. Restarting Stremio sometimes helps too.
+
+</details>
+
+<details>
+<summary><b>Does it cost anything?</b></summary>
+
+<br>
+
+No. It is completely free — no account, no subscription, no payment.
+
+</details>
+
+<details>
+<summary><b>Which films are included?</b></summary>
+
+<br>
+
+You can see the current list on
+[the addon's page](https://stremio-subtitle-addon-mvrad-digital.muradismayilovvlog.workers.dev).
+The collection grows regularly.
+
+</details>
+
+<details>
+<summary><b>Subtitles are out of sync</b></summary>
+
+<br>
+
+That comes from a different version of the video file, not from the subtitle.
+While watching, open the subtitle settings in Stremio and adjust the **delay**
+slider forwards or backwards until it lines up.
+
+</details>
+
+<details>
+<summary><b>Letters look wrong (ə, ğ, ş, ı)</b></summary>
+
+<br>
+
+All subtitles are UTF-8, so Azerbaijani letters should display correctly. If
+something still looks off, try changing the font in Stremio's subtitle
+settings.
+
+</details>
+
+<details>
+<summary><b>How do I remove the addon?</b></summary>
+
+<br>
+
+Stremio → **Addons** → **My Addons** → **Uninstall** next to the addon.
+
+</details>
+
+<br>
+
+### Supported devices
+
+| Device | Status |
+|---|---|
+| Windows · macOS · Linux | ✅ Fully supported |
+| Android phone and tablet | ✅ Fully supported |
+| Android TV · Google TV | ✅ Fully supported |
+| Browser (web.stremio.com) | ✅ Fully supported |
+| iPhone · iPad | ✅ Via the browser version |
+
+<br>
 
 ---
 
-## The two web pages
+<div align="center">
 
-| Page | Who it is for |
-| --- | --- |
-| `/` (`index.html`) | **Customers.** Install steps for each device, how to switch subtitles on during playback, the catalogue, FAQ. Nothing about how the addon is maintained. |
-| `/panel.html` | **You.** Which files were skipped and why, the encoding each file was found in, what got repaired. Not linked from anywhere public. |
+**Mvrad Digital**
 
-Everything customers read comes from `addon.config.json`:
+<sub>Stremio is a trademark of Smart Code Ltd. This addon is not affiliated with Stremio.</sub>
 
-| Field | Where it shows |
-| --- | --- |
-| `name` | Page title and the addon's name inside Stremio |
-| `description` | **The text Stremio shows in its addon list** — the closest thing to a sales pitch |
-| `tagline` | Under the title on the page |
-| `brand` | Page footer |
-| `contact` | Adds a support button. `{"type": "telegram", "value": "@yourname"}` — also `whatsapp` (phone number), `instagram`, `email`, or `none` |
-| `showCatalog` | `false` hides the film list and shows only the count |
-
-The logo and background live in `assets/`. Replace those two PNGs to rebrand —
-`logo.png` is what Stremio shows next to the addon name, so keep it square.
-
----
-
-## How it is deployed
-
-Cloudflare is connected to this repository (Workers & Pages → your project →
-Settings → Build). On every push it runs:
-
-```
-Build command:   npm run build      # subtitles/ -> dist/
-Deploy command:  npx wrangler deploy
-```
-
-`wrangler.toml` tells Wrangler to publish `worker/index.js` together with
-`dist/` as static assets, so a single Worker serves the manifest, the subtitle
-files and the addon's web page.
-
-### Why the Worker is not optional
-
-When Stremio plays a video it does **not** ask for
-`/subtitles/movie/tt1375666.json`. It asks for something like:
-
-```
-/subtitles/movie/tt1375666/videoHash=8e2b1f&videoSize=1471263&filename=Inception.mkv.json
-```
-
-A static host has no file at that address, answers 404, and no subtitles
-appear. `worker/index.js` ignores that trailing part and answers correctly.
-It also adds the CORS headers Stremio needs — which is why `wrangler.toml`
-sets `run_worker_first = true`.
-
-Subtitle URLs are stored relative and made absolute per request, so the addon
-works on the `workers.dev` address, on a custom domain, and on `localhost`
-without any configuration.
-
----
-
-## Testing before you push
-
-```bash
-npm run build     # convert everything in subtitles/ into dist/
-npm test          # check the encoding and conversion pipeline
-npm run verify    # build, then replay the exact URLs Stremio sends
-npm start         # build, then serve on http://127.0.0.1:8080
-```
-
-`npm start` prints a `http://127.0.0.1:8080/manifest.json` URL you can install
-in the desktop Stremio to try changes before pushing.
-
-After each build, `dist/report.json` lists every file, the encoding it was
-found in, and any repairs applied — the first place to look when a subtitle
-renders wrong.
-
-GitHub Actions runs `npm test` and `npm run verify` on every push, so a badly
-named or unreadable file shows up as a red cross on the commit.
-
----
-
-## Troubleshooting
-
-**A film shows no subtitles at all.** Open `/panel.html` on the Worker. It
-lists every file that was skipped and why — usually an IMDb id missing from
-the file name.
-
-**Subtitles appear in the menu but never load.** The subtitle URLs are pointing
-somewhere unreachable. Open `/subs.json` on the Worker: every entry should have
-a relative `"path"`, not an absolute `"url"` with a hostname baked in.
-
-**Letters look wrong.** Check `report.json` for that file's detected encoding.
-If detection guessed wrong, open the `.srt` in a text editor, save it as UTF-8,
-and re-upload.
-
-**Stremio still shows the old list.** Stremio caches subtitle responses
-briefly. Stop playback and start it again.
-
----
-
-## Layout
-
-```
-subtitles/                 <- you only ever touch this folder
-addon.config.json          <- name, description, contact, catalogue on/off
-assets/                    <- logo.png and background.png
-wrangler.toml              <- Cloudflare deployment config
-worker/index.js            <- the addon endpoint
-scripts/lib/page.mjs       <- the customer page and your panel page
-scripts/build.mjs          <- converts subtitles/ into dist/
-scripts/lib/decode.mjs     <- encoding detection and repair
-scripts/lib/subtitle.mjs   <- SRT / MicroDVD -> WebVTT
-scripts/lib/naming.mjs     <- reads IMDb id and episode from file names
-scripts/verify.mjs         <- replays Stremio's real requests against dist/
-api/subtitles.js           <- only needed if you host on Vercel instead
-.github/workflows/         <- runs the checks on every push
-```
-
-No `npm install` needed — plain Node, zero dependencies.
+</div>
