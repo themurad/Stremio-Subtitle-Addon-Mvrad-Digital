@@ -24,6 +24,24 @@
 // Only used in mode 2. Ignored when deployed from the repository.
 const SITE = 'https://USERNAME.github.io/REPOSITORY';
 
+// Android compatibility.
+//
+// Stremio's Android app fetches subtitle files with an HTTP client that falls
+// back to ISO-8859-1 when it is unsure of the encoding, so UTF-8 Azerbaijani
+// letters arrive as "hÉ™lÉ™" instead of "hələ". Desktop sniffs the bytes and
+// gets it right, which is why the same file looks fine on a computer.
+//
+// Stremio's own streaming server has an endpoint that downloads a subtitle and
+// detects its encoding properly — it is what the official OpenSubtitles addon
+// uses for exactly this reason. Routing through it sidesteps the app's decoder
+// entirely. It only exists on desktop and Android, not in a browser, so the
+// direct URL is offered alongside it as a fallback.
+//
+// Set to false to go back to a single, direct entry.
+const ANDROID_COMPAT_ENTRY = true;
+const STREMIO_SERVER = 'http://127.0.0.1:11470/subtitles.vtt?from=';
+const FALLBACK_LABEL = 'Azərbaycan (ehtiyat)';
+
 const INDEX_TTL_MS = 60 * 1000;
 
 const CORS = {
@@ -111,14 +129,24 @@ export default {
     if (subtitleRequest) {
       const index = await loadIndex(env, base);
       const video = index.videos && index.videos[subtitleRequest.id];
-      const subtitles = video
-        ? video.subtitles.map((sub) => ({
-            id: sub.id,
-            // Paths are stored relative so the addon works on any hostname.
-            url: sub.path ? `${base}/${sub.path}` : sub.url,
+      const subtitles = [];
+      for (const sub of (video ? video.subtitles : [])) {
+        // Paths are stored relative so the addon works on any hostname.
+        const direct = sub.path ? `${base}/${sub.path}` : sub.url;
+
+        if (ANDROID_COMPAT_ENTRY) {
+          subtitles.push({
+            id: `${sub.id}-srv`,
+            url: `${STREMIO_SERVER}${encodeURIComponent(direct)}`,
             lang: sub.lang,
-          }))
-        : [];
+          });
+          // Shown under its own name so a customer whose player cannot reach
+          // the local server has something obvious to switch to.
+          subtitles.push({ id: sub.id, url: direct, lang: FALLBACK_LABEL });
+        } else {
+          subtitles.push({ id: sub.id, url: direct, lang: sub.lang });
+        }
+      }
       return json({ subtitles, cacheMaxAge: 300 });
     }
 

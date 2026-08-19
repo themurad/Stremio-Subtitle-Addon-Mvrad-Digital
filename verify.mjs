@@ -94,13 +94,30 @@ for (const videoId of videoIds) {
     const body = await response.json();
     ok(`${videoId} returns a subtitle`, body.subtitles?.length > 0, JSON.stringify(body));
 
-    for (const subtitle of body.subtitles || []) {
-      ok(`${videoId} url is absolute and on this host`,
-        subtitle.url.startsWith(`${ORIGIN}/`),
-        subtitle.url);
-      ok(`${videoId} is announced as Azerbaijani`, subtitle.lang === 'aze', subtitle.lang);
+    // Two entries per subtitle: one routed through Stremio's own streaming
+    // server so Android stops guessing the encoding, and one direct for
+    // players that cannot reach that server.
+    const viaServer = (body.subtitles || []).filter((s) => s.url.includes('127.0.0.1:11470'));
+    const directOnes = (body.subtitles || []).filter((s) => !s.url.includes('127.0.0.1:11470'));
+    ok(`${videoId} offers a server-routed entry`, viaServer.length > 0);
+    ok(`${videoId} offers a direct fallback`, directOnes.length > 0);
+    ok(`${videoId} server-routed entry is announced as Azerbaijani`,
+      viaServer.every((s) => s.lang === 'aze'), JSON.stringify(viaServer.map((s) => s.lang)));
+    ok(`${videoId} every entry has a unique id`,
+      new Set(body.subtitles.map((s) => s.id)).size === body.subtitles.length,
+      JSON.stringify(body.subtitles.map((s) => s.id)));
 
-      const fileResponse = await get(new URL(subtitle.url).pathname);
+    for (const subtitle of body.subtitles || []) {
+      // Unwrap the proxy so both kinds are checked against the real file.
+      const target = subtitle.url.includes('127.0.0.1:11470')
+        ? decodeURIComponent(subtitle.url.split('?from=')[1] || '')
+        : subtitle.url;
+
+      ok(`${videoId} url resolves to an absolute address on this host`,
+        target.startsWith(`${ORIGIN}/`),
+        `${subtitle.url} -> ${target}`);
+
+      const fileResponse = await get(new URL(target).pathname);
       ok(`${videoId} subtitle file exists`, fileResponse.status === 200, `${subtitle.url} -> ${fileResponse.status}`);
 
       // Android was decoding subtitles with a legacy codepage because nothing
